@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeX Pro - Crypto Trading</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="h-screen flex flex-col text-sm">
+    <header class="h-12 bg-[#151921] border-b border-[#2d3748] flex items-center px-4 shrink-0 z-50">
+        <div class="flex items-center gap-8">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 bg-gradient-to-br from-orange-500 to-yellow-500 rounded flex items-center justify-center font-bold text-white text-xs">TX</div>
+                <span class="font-bold text-lg tracking-tight text-white">TradeX<span class="text-orange-500">Pro</span></span>
+            </div>
+            <nav class="flex gap-1">
+                <button class="relative text-white px-3 py-3 text-xs font-medium after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-[2px] after:bg-[#00b897]">Spot</button>
+                <button class="text-[#848e9c] px-3 py-3 text-xs font-medium">Inverse Perpetual</button>
+                <button class="text-[#848e9c] px-3 py-3 text-xs font-medium">USDT Perpetual</button>
+                <button class="text-[#848e9c] px-3 py-3 text-xs font-medium">Options</button>
+            </nav>
+        </div>
+        <div class="ml-auto flex items-center gap-4">
+            <div class="flex items-center gap-2 text-xs text-[#848e9c]">
+                <span>Funding: <span class="text-[#00b897] font-medium">0.01%</span></span>
+                <span class="animate-pulse text-[#00b897]">05:23:12</span>
+            </div>
+            <div class="flex items-center gap-3 pl-4 border-l border-[#2d3748]">
+                <div class="text-right">
+                    <div class="text-xs text-[#848e9c]">Total Equity</div>
+                    <div class="font-mono font-semibold text-white" id="total-equity">$10,000.00</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-[#848e9c]">Available</div>
+                    <div class="font-mono font-semibold text-[#00b897]" id="available-margin">$10,000.00</div>
+                </div>
+            </div>
+            <button onclick="resetAccount()" class="px-3 py-1.5 text-xs border border-[#2d3748] rounded hover:bg-[#2d3748] transition text-white">Reset Demo</button>
+        </div>
+    </header>
+    <div class="flex-1 flex overflow-hidden">
+        <div class="w-72 bg-[#151921] border-r border-[#2d3748] flex flex-col shrink-0">
+            <div class="p-3 border-b border-[#2d3748]">
+                <div class="flex gap-2 mb-3">
+                    <button class="flex-1 py-1.5 text-xs rounded bg-[#1f232f] text-white font-medium">USDT</button>
+                    <button class="flex-1 py-1.5 text-xs rounded hover:bg-[#2d3748] text-[#848e9c] transition">USDC</button>
+                    <button class="flex-1 py-1.5 text-xs rounded hover:bg-[#2d3748] text-[#848e9c] transition">Inverse</button>
+                </div>
+                <div class="relative">
+                    <input type="text" placeholder="Search symbol..." class="w-full bg-[#0b0e11] border border-[#2d3748] rounded px-3 py-2 text-xs focus:outline-none focus:border-orange-500 transition text-white">
+                </div>
+            </div>
+            <div class="grid grid-cols-3 px-3 py-2 text-xs text-[#848e9c] font-medium border-b border-[#2d3748]">
+                <span>Symbol</span>
+                <span class="text-right">Last</span>
+                <span class="text-right">24h</span>
+            </div>
+            <div id="market-list" class="flex-1 overflow-y-auto"></div>
+            <div class="h-48 border-t border-[#2d3748] flex flex-col">
+                <div class="px-3 py-2 text-xs font-medium border-b border-[#2d3748] text-white">Recent Trades</div>
+                <div id="recent-trades" class="flex-1 overflow-y-auto px-3 py-2 space-y-1"></div>
+            </div>
+        </div>
+        <div class="flex-1 flex flex-col min-w-0">
+            <div class="h-10 bg-[#0b0e11] border-b border-[#2d3748] flex items-center justify-between px-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-base text-white" id="current-symbol">BTCUSDT</span>
+                        <span class="text-xs text-[#848e9c]">Perpetual</span>
+                    </div>
+                    <div class="flex items-baseline gap-3">
+                        <span class="font-mono text-lg font-bold text-[#00b897]" id="mark-price">43,250.50</span>
+                        <span class="text-xs text-[#00b897]" id="price-change">+2.34%</span>
+                        <span class="text-xs text-[#848e9c]">Index: <span class="font-mono text-white">43,245.00</span></span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 text-xs">
+                    <div class="flex items-center gap-1"><span class="text-[#848e9c]">24h High</span><span class="font-mono font-medium text-white">44,125.00</span></div>
+                    <div class="flex items-center gap-1"><span class="text-[#848e9c]">24h Low</span><span class="font-mono font-medium text-white">42,890.00</span></div>
+                    <div class="flex items-center gap-1"><span class="text-[#848e9c]">24h Vol</span><span class="font-mono font-medium text-white">2.4B</span></div>
+                </div>
+            </div>
+            <div class="flex-1 relative bg-[#0b0e11]" id="chart-wrapper">
+                <div id="chart-container" class="absolute inset-0"></div>
+                <div id="position-panel" class="absolute top-4 right-4 w-80 bg-[#151921] border border-[#2d3748] rounded-lg shadow-2xl hidden">
+                    <div class="px-4 py-3 border-b border-[#2d3748] flex justify-between items-center">
+                        <span class="font-semibold text-sm text-white">Position</span>
+                        <button onclick="closeAllPositions()" class="text-xs text-[#ff6b6b] hover:underline">Close All</button>
+                    </div>
+                    <div class="p-4 space-y-3 text-xs">
+                        <div class="flex justify-between"><span class="text-[#848e9c]">Size</span><span class="font-mono font-medium text-white" id="pos-size">0.000 BTC</span></div>
+                        <div class="flex justify-between"><span class="text-[#848e9c]">Entry Price</span><span class="font-mono font-medium text-white" id="pos-entry">0.00</span></div>
+                        <div class="flex justify-between"><span class="text-[#848e9c]">Mark Price</span><span class="font-mono font-medium text-white" id="pos-mark">0.00</span></div>
+                        <div class="flex justify-between"><span class="text-[#848e9c]">Liq. Price</span><span class="font-mono font-medium text-[#ff6b6b]" id="pos-liq">--</span></div>
+                        <div class="pt-2 border-t border-[#2d3748] flex justify-between items-center"><span class="text-[#848e9c]">Unrealized P&L</span><span class="font-mono font-bold text-base" id="pos-pnl">+0.00</span></div>
+                        <div class="flex justify-between text-xs"><span class="text-[#848e9c]">Margin</span><span class="font-mono text-white" id="pos-margin">0.00</span></div>
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="addMargin()" class="flex-1 py-2 bg-[#1f232f] hover:bg-[#0b0e11] border border-[#2d3748] rounded text-xs transition text-white">+ Margin</button>
+                            <button onclick="setTPSL()" class="flex-1 py-2 bg-[#1f232f] hover:bg-[#0b0e11] border border-[#2d3748] rounded text-xs transition text-white">TP/SL</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-80 bg-[#151921] border-t border-[#2d3748] grid grid-cols-12 gap-px">
+                <div class="col-span-3 flex flex-col border-r border-[#2d3748]">
+                    <div class="flex border-b border-[#2d3748]">
+                        <button class="flex-1 py-2 text-xs font-medium text-white border-b-2 border-orange-500">Order Book</button>
+                        <button class="flex-1 py-2 text-xs font-medium text-[#848e9c] hover:text-white transition">Recent Trades</button>
+                    </div>
+                    <div class="flex-1 flex flex-col text-xs font-mono">
+                        <div class="grid grid-cols-3 px-2 py-1.5 text-[#848e9c] text-xs border-b border-[#2d3748]">
+                            <span>Price</span>
+                            <span class="text-right">Size</span>
+                            <span class="text-right">Total</span>
+                        </div>
+                        <div id="order-book-asks" class="flex-1 overflow-hidden flex flex-col justify-end"></div>
+                        <div class="py-2 text-center border-y border-[#2d3748] bg-[#0b0e11]">
+                            <span class="font-mono font-medium text-[#00b897]" id="spread-price">43,250.50</span>
+                            <span class="text-xs text-[#848e9c] ml-2">Spread: 0.01</span>
+                        </div>
+                        <div id="order-book-bids" class="flex-1 overflow-hidden"></div>
+                    </div>
+                </div>
+                <div class="col-span-4 p-4 border-r border-[#2d3748] overflow-y-auto">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2"><span class="text-xs text-[#848e9c]">Leverage</span><span class="text-xs font-bold text-orange-500" id="leverage-display">10x</span></div>
+                        <input type="range" min="1" max="100" value="10" class="w-full mb-2 h-1 bg-[#2d3748] rounded appearance-none" style="-webkit-appearance: none;" id="leverage-slider" oninput="updateLeverage(this.value)">
+                        <style>#leverage-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#00b897;border-radius:50%;cursor:pointer;}</style>
+                        <div class="flex justify-between text-xs text-[#848e9c]"><span>1x</span><span>25x</span><span>50x</span><span>100x</span></div>
+                    </div>
+                    <div class="flex gap-1 mb-4 p-1 bg-[#0b0e11] rounded">
+                        <button onclick="setOrderType('limit')" id="tab-limit" class="flex-1 py-1.5 text-xs rounded font-medium bg-[#1f232f] text-white transition">Limit</button>
+                        <button onclick="setOrderType('market')" id="tab-market" class="flex-1 py-1.5 text-xs rounded font-medium text-[#848e9c] hover:text-white transition">Market</button>
+                        <button onclick="setOrderType('conditional')" id="tab-conditional" class="flex-1 py-1.5 text-xs rounded font-medium text-[#848e9c] hover:text-white transition">Conditional</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div id="limit-price-group">
+                            <label class="text-xs text-[#848e9c] mb-1 block">Limit Price</label>
+                            <div class="relative">
+                                <input type="number" id="limit-price" class="w-full bg-[#0b0e11] border border-[#2d3748] rounded px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#00b897] text-white" placeholder="0.00">
+                                <span class="absolute right-3 top-2 text-xs text-[#848e9c]">USD</span>
+                            </div>
+                        </div>
+                        <div id="trigger-price-group" class="hidden">
+                            <label class="text-xs text-[#848e9c] mb-1 block">Trigger Price</label>
+                            <div class="relative">
+                                <input type="number" id="trigger-price" class="w-full bg-[#0b0e11] border border-[#2d3748] rounded px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#00b897] text-white" placeholder="0.00">
+                                <span class="absolute right-3 top-2 text-xs text-[#848e9c]">USD</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-[#848e9c] mb-1 block">Quantity</label>
+                            <div class="relative">
+                                <input type="number" id="order-qty" step="0.001" class="w-full bg-[#0b0e11] border border-[#2d3748] rounded px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#00b897] text-white" placeholder="0.000" oninput="updateOrderValue()">
+                                <span class="absolute right-3 top-2 text-xs text-[#848e9c]">BTC</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1">
+                            <button onclick="setQtyPercent(10)" class="py-1.5 bg-[#0b0e11] hover:bg-[#1f232f] rounded text-xs text-[#848e9c] transition">10%</button>
+                            <button onclick="setQtyPercent(25)" class="py-1.5 bg-[#0b0e11] hover:bg-[#1f232f] rounded text-xs text-[#848e9c] transition">25%</button>
+                            <button onclick="setQtyPercent(50)" class="py-1.5 bg-[#0b0e11] hover:bg-[#1f232f] rounded text-xs text-[#848e9c] transition">50%</button>
+                            <button onclick="setQtyPercent(100)" class="py-1.5 bg-[#0b0e11] hover:bg-[#1f232f] rounded text-xs text-[#848e9c] transition">Max</button>
+                        </div>
+                        <div class="flex justify-between text-xs py-2 border-t border-[#2d3748]"><span class="text-[#848e9c]">Cost</span><span class="font-mono font-medium text-white" id="order-cost">0.00 USD</span></div>
+                        <div class="flex justify-between text-xs"><span class="text-[#848e9c]">Max</span><span class="font-mono text-[#00b897]" id="max-qty">0.000 BTC</span></div>
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <button onclick="placeOrder('buy')" class="py-3 bg-[#00b897] hover:bg-green-500 rounded text-white text-sm font-semibold uppercase tracking-wider transition active:scale-95">Buy / Long</button>
+                            <button onclick="placeOrder('sell')" class="py-3 bg-[#ff6b6b] hover:bg-red-500 rounded text-white text-sm font-semibold uppercase tracking-wider transition active:scale-95">Sell / Short</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-5 flex flex-col">
+                    <div class="flex border-b border-[#2d3748]">
+                        <button onclick="setPanelTab('positions')" id="panel-tab-positions" class="relative text-white px-4 py-3 text-xs font-medium after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-[2px] after:bg-[#00b897]">Positions (0)</button>
+                        <button onclick="setPanelTab('open-orders')" id="panel-tab-open-orders" class="text-[#848e9c] px-4 py-3 text-xs font-medium">Open Orders (0)</button>
+                        <button onclick="setPanelTab('order-history')" id="panel-tab-order-history" class="text-[#848e9c] px-4 py-3 text-xs font-medium">Order History</button>
+                        <button onclick="setPanelTab('assets')" id="panel-tab-assets" class="text-[#848e9c] px-4 py-3 text-xs font-medium">Assets</button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-3" id="panel-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="toast-container" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+    <script src="app.js"></script>
+</body>
+</html>
